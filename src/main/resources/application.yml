@@ -9,10 +9,8 @@ spring:
     username:
     password:
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    database: H2
-    openInView: false
-    show_sql: true
+    open-in-view: false
+    show-sql: true
     generate-ddl: true
     hibernate:
       ddl-auto: create-drop
