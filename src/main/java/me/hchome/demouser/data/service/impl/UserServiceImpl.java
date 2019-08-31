@@ -61,6 +61,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User update(long id, User user) {
         User u = manager.find(User.class, id);
+        if((u== null ||u.getVersion() != user.getVersion()) )
+            throw new  OptimisticLockException("Version or id isn't match");
+
         if(!StringUtils.isEmpty(user.getEmail())){
             u.setEmail(user.getEmail());
         }
@@ -72,18 +75,9 @@ public class UserServiceImpl implements UserService {
         if(!StringUtils.isEmpty(user.getPassword())){
             u.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-        u.setVersion(user.getVersion());
-        Query query = manager.createNamedQuery("User.update");
-        query.setParameter("email",u.getEmail());
-        query.setParameter("name", u.getName());
-        query.setParameter("password",u.getPassword());
-        query.setParameter("version",u.getVersion());
-        query.setParameter("id",u.getId());
-        query.setParameter("oldVersion",user.getVersion());
-        manager.detach(u);
-        int numUpdated = query.executeUpdate();
-        if(numUpdated > 0) return this.get(u.getId());
-        else throw new OptimisticLockException("Version or id isn't match");
+        u.setVersion(user.getVersion() +1);
+        manager.merge(u);
+        return u;
     }
 
     @Override
