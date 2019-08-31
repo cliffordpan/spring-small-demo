@@ -14,4 +14,3 @@ spring:
     properties:
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: true
-
