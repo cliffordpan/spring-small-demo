@@ -26,8 +26,6 @@ import java.util.Collection;
 @NamedQueries({
         @NamedQuery(query = "SELECT u FROM User u WHERE u.email = :email", name = "User.findByEmail"),
         @NamedQuery(query = "SELECT u FROM User u", name = "User.findAll"),
-        @NamedQuery(query = "UPDATE User u SET u.email=:email,u.name=:name,u.password=:password,u.version=:version WHERE u.id=:id and u.version = :oldVersion",
-                name = "User.update")
 })
 public class User implements Serializable, UserDetails {
 
@@ -58,6 +56,9 @@ public class User implements Serializable, UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(groups = {Create.class})
     private String password; // Add this field for spring security
+
+    @ManyToOne
+    private Client client;
 
     @Version
     private int version;

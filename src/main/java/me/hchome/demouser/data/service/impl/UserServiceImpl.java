@@ -1,7 +1,10 @@
 package me.hchome.demouser.data.service.impl;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import me.hchome.demouser.data.User;
 import me.hchome.demouser.data.service.UserService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,16 +15,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import java.time.Duration;
 
 
 /**
  * @author Junjie(Cliff) Pan
  */
-@Service
-public class UserServiceImpl implements UserService {
+@Service("userService")
+public class UserServiceImpl implements UserService, InitializingBean {
 
     @Autowired
     private EntityManager manager;
+
+    private Cache<String,User> cache;
 
     private final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
@@ -86,5 +92,14 @@ public class UserServiceImpl implements UserService {
         User user = manager.find(User.class, id);
         if (user == null) throw new EntityNotFoundException();
         manager.remove(user);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        cache = CacheBuilder.newBuilder()
+                .softValues()
+                .expireAfterAccess(Duration.ofDays(1))
+                .maximumSize(1000)
+                .build();
     }
 }
